@@ -8,7 +8,7 @@
 
 ## ✨ **快速开始**
 
-### 命令行
+### 1️⃣ 命令行
 ```shell script
 # 启容器
 $ docker run -it --rm   -v $(pwd)/config.toml:/home/coder/.codex/config.toml   -v $(pwd)/config:/home/coder/.config/ai-tools  \
@@ -21,7 +21,7 @@ $ codex
 
 ```
 
-## 简单配置 
+### 2️⃣ 简单配置 
 
 ```yaml 
 model = "gpt-5-codex"
