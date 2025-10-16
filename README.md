@@ -6,6 +6,14 @@
 ![Node](https://img.shields.io/badge/Node-20-green)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 
+## ✨ **快速开始**
+
+```shell script
+
+docker run -it --rm   -v $(pwd)/config.toml:/home/coder/.codex/config.toml   -v $(pwd)/config:/home/coder/.config/ai-tools   --privileged   -e HTTP_PROXY=http://192.168.99.1:7890   -e HTTPS_PROXY=http://192.168.99.1:7890   -e http_proxy=http://192.168.99.1:7890   -e https_proxy=http://192.168.99.1:7890   -e NO_PROXY=localhost,127.0.0.1,www.chatopens.net   -e no_proxy=localhost,127.0.0.1,www.chatopens.net   jdcloudiaas/turta:coder
+
+```
+
 ## ✨ **核心特性**
 
 - ✅ **8 个 AI 编程工具** - 一站式集成
