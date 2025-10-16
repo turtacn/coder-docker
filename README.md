@@ -115,6 +115,9 @@ docker run -it --rm \
 ### 5️⃣ 在容器内使用工具
 
 ```bash
+# 进入容器后，查看已安装工具
+~/list-agents.sh
+
 # 进入项目目录
 cd ~/projects
 
