@@ -8,11 +8,20 @@
 
 ## ✨ **快速开始**
 
+### 命令行
 ```shell script
+# 启容器
+$ docker run -it --rm   -v $(pwd)/config.toml:/home/coder/.codex/config.toml   -v $(pwd)/config:/home/coder/.config/ai-tools  \
+ --privileged   -e HTTP_PROXY=http://192.168.99.1:7890   -e HTTPS_PROXY=http://192.168.99.1:7890   -e http_proxy=http://192.168.99.1:7890   \
+ -e https_proxy=http://192.168.99.1:7890   -e NO_PROXY=localhost,127.0.0.1,www.chatopens.net   -e no_proxy=localhost,127.0.0.1,www.chatopens.net   \
+ jdcloudiaas/turta:coder
 
-docker run -it --rm   -v $(pwd)/config.toml:/home/coder/.codex/config.toml   -v $(pwd)/config:/home/coder/.config/ai-tools   --privileged   -e HTTP_PROXY=http://192.168.99.1:7890   -e HTTPS_PROXY=http://192.168.99.1:7890   -e http_proxy=http://192.168.99.1:7890   -e https_proxy=http://192.168.99.1:7890   -e NO_PROXY=localhost,127.0.0.1,www.chatopens.net   -e no_proxy=localhost,127.0.0.1,www.chatopens.net   jdcloudiaas/turta:coder
+# 参考 https://www.chatopens.net/codex 配置
+$ codex
 
 ```
+
+## 简单配置 
 
 ```yaml 
 model = "gpt-5-codex"
