@@ -46,6 +46,16 @@ RUN pipx install gpt-engineer && \
 # Create configuration directories
 RUN mkdir -p ~/.config/ai-tools ~/.cache ~/projects
 
+RUN mkdir -p ~/.claude/ ~/.continue/ ~/.sourcegraph-cody/ ~/.copilot/ ~/.codex/ ~/.gpt_engineer/ \
+             ~/.gpt-engineer/ ~/.aider/ ~/.interpreter/ ~/.open-interpreter/ ~/.config/claude/ \
+             ~/.config/continue/ ~/.config/sourcegraph-cody/ ~/.config/github-copilot/ ~/.config/codex/ \
+             ~/.config/gpt-engineer/ ~/.config/aider/ ~/.config/interpreter/ ~/.cache/claude/ ~/.cache/continue/ \
+             ~/.cache/sourcegraph-cody/ ~/.cache/github-copilot/ ~/.cache/codex/ ~/.cache/gpt-engineer/ \
+             ~/.cache/aider/ ~/.cache/interpreter/ ~/.local/share/claude/ ~/.local/share/continue/ \
+             ~/.local/share/sourcegraph-cody/ ~/.local/share/github-copilot/ ~/.local/share/codex/ \
+             ~/.local/share/gpt-engineer/ ~/.local/share/aider/ ~/.local/share/interpreter/ ~/.aider.conf.yml
+
+
 # Create configuration template using echo
 RUN echo '# AI Tools Configuration Template' > ~/.config/ai-tools/config.env.template && \
     echo '# Copy this file to config.env and fill in your API keys' >> ~/.config/ai-tools/config.env.template && \
@@ -123,6 +133,6 @@ RUN echo '' >> ~/.bashrc && \
     echo '    set +a' >> ~/.bashrc && \
     echo 'fi' >> ~/.bashrc
 
-VOLUME ["/home/coder/projects", "/home/coder/.config", "/home/coder/.cache"]
+VOLUME ["/home/coder/projects", "/home/coder/.config", "/home/coder/.cache", "/home/coder/.codex"]
 
 CMD ["/bin/bash", "-c", "~/list-agents.sh && exec /bin/bash"]
