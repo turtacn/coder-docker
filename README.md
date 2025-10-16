@@ -14,6 +14,17 @@ docker run -it --rm   -v $(pwd)/config.toml:/home/coder/.codex/config.toml   -v 
 
 ```
 
+```yaml 
+model = "gpt-5-codex"
+model_provider = "mirror"
+
+[model_providers.mirror]
+name = "mirror"
+base_url = "https://www.chatopens.net/codex"
+wire_api = "responses"
+requires_openai_auth = true
+```
+
 ## ✨ **核心特性**
 
 - ✅ **8 个 AI 编程工具** - 一站式集成
