@@ -1,0 +1,8 @@
+  model = "gpt-5-codex"
+    model_provider = "mirror"
+
+    [model_providers.mirror]
+    name = "mirror"
+    base_url = "https://www.chatopens.chat/codex"
+    wire_api = "responses"
+    requires_openai_auth = true
