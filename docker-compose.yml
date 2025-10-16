@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  ai-coding-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jdcloudiaas/turta:coder
+    container_name: ai-coding-tools
+    stdin_open: true
+    tty: true
+
+    volumes:
+      # Project files
+      - ./projects:/home/coder/projects
+      # Configuration files
+      - ./config:/home/coder/.config/ai-tools
+      # Cache
+      - ai-tools-cache:/home/coder/.cache
+      # Git config (optional)
+      - ~/.gitconfig:/home/coder/.gitconfig:ro
+      # SSH keys (optional)
+      - ~/.ssh:/home/coder/.ssh:ro
+
+    environment:
+      # API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - SRC_ACCESS_TOKEN=${SRC_ACCESS_TOKEN:-}
+      # Workspace
+      - WORKSPACE=/home/coder/projects
+
+    working_dir: /home/coder/projects
+
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+volumes:
+  ai-tools-cache:
+    driver: local

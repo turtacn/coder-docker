@@ -1,310 +1,386 @@
-# coder-docker
-优化这个 Dockerfile,添加 CLI 配置文件管理和外部目录映射支持:
+# 🚀 AI Coding Agents Docker Container
 
-```dockerfile
-FROM node:20-slim
+一个集成了 8 个 AI 编程智能体的完整 Docker 容器，支持本地离线运行和云端 API 集成。
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TERM=xterm-256color
+![Docker](https://img.shields.io/badge/Docker-27.5.1%2B-blue)
+![Node](https://img.shields.io/badge/Node-20-green)
+![Python](https://img.shields.io/badge/Python-3.x-blue)
 
-WORKDIR /workspace
+## ✨ **核心特性**
 
-# Install basic dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    wget \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+- ✅ **8 个 AI 编程工具** - 一站式集成
+- ✅ **本地运行** - 支持离线使用和本地 API 集成
+- ✅ **Docker 容器** - 开箱即用，无需复杂配置
+- ✅ **多 API 支持** - OpenAI、Anthropic、Google、GitHub、Sourcegraph
+- ✅ **持久化存储** - 项目文件和配置持久化
+- ✅ **自动配置加载** - 环境变量自动注入
 
-# Install all npm-based AI coding tools
-RUN npm install -g \
-    @openai/codex \
-    @google/gemini-cli \
-    @anthropic-ai/claude-code \
-    @continuedev/cli \
-    @sourcegraph/cody \
-    @githubnext/github-copilot-cli
+---
 
-# Optional: Install Python-based tools
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install --no-cache-dir \
-        gpt-engineer \
-        aider-chat \
-        open-interpreter \
-    && pip3 cache purge
+## 📦 **支持的 AI 编程工具**
 
-# Create non-root user
-RUN useradd -m -s /bin/bash coder
+### npm-based CLI Tools（5 个）
 
-# Create configuration directories
-RUN mkdir -p /home/coder/.config/ai-tools \
-    && mkdir -p /home/coder/projects \
-    && mkdir -p /home/coder/.cache \
-    && chown -R coder:coder /home/coder
+| 工具 | 命令 | 供应商 | 功能描述 |
+|------|------|--------|---------|
+| **Anthropic Claude** | `claude` | Anthropic | 高级代码生成和分析 |
+| **Continue** | `cn` | Continue | IDE 集成的 AI 编程助手 |
+| **Sourcegraph Cody** | `cody` | Sourcegraph | 代码智能和补全 |
+| **GitHub Copilot** | `github-copilot` | GitHub | GitHub 的 AI 编程助手 |
+| **OpenAI Codex** | `codex` | OpenAI | 本地运行的编程智能体 |
 
-USER coder
-WORKDIR /home/coder
+### Python-based Tools（3 个）
 
-# Create default configuration template
-RUN echo '# AI Tools Configuration\n\
-# Copy this to your host machine and mount as volume\n\
-\n\
-# OpenAI Configuration\n\
-export OPENAI_API_KEY="your-openai-key"\n\
-export OPENAI_ORG_ID="your-org-id"\n\
-\n\
-# Anthropic Claude Configuration\n\
-export ANTHROPIC_API_KEY="your-anthropic-key"\n\
-\n\
-# Google Gemini Configuration\n\
-export GEMINI_API_KEY="your-gemini-key"\n\
-\n\
-# GitHub Copilot Configuration\n\
-export GITHUB_TOKEN="your-github-token"\n\
-\n\
-# Sourcegraph Cody Configuration\n\
-export SRC_ACCESS_TOKEN="your-sourcegraph-token"\n\
-export SRC_ENDPOINT="https://sourcegraph.com"\n\
-' > /home/coder/.config/ai-tools/config.env.template
+| 工具 | 命令 | 供应商 | 功能描述 |
+|------|------|--------|---------|
+| **GPT Engineer** | `gpt-engineer` | OpenAI | 项目级代码生成框架 |
+| **Aider** | `aider` | Aider | 交互式 AI 编程对话 |
+| **Open Interpreter** | `interpreter` | OpenAI | 代码执行和分析引擎 |
 
-# Create helper script
-RUN echo '#!/bin/bash\n\
-echo "🚀 AI Coding Agents Collection"\n\
-echo "================================"\n\
-echo ""\n\
-echo "✅ npm-installed CLI tools:"\n\
-echo "  codex           - OpenAI Codex"\n\
-echo "  gemini          - Google Gemini CLI"\n\
-echo "  claude          - Anthropic Claude Code"\n\
-echo "  cn              - Continue CLI"\n\
-echo "  cody            - Sourcegraph Cody"\n\
-echo "  github-copilot  - GitHub Copilot CLI"\n\
-echo ""\n\
-echo "🐍 pip-installed tools:"\n\
-echo "  gpt-engineer    - GPT Engineer"\n\
-echo "  aider           - Aider"\n\
-echo "  interpreter     - Open Interpreter"\n\
-echo ""\n\
-echo "📁 Mounted directories:"\n\
-echo "  ~/projects      - Your project files"\n\
-echo "  ~/.config       - Configuration files"\n\
-echo "  ~/.cache        - Cache directory"\n\
-echo ""\n\
-echo "📖 Quick start:"\n\
-echo "  1. Load config: source ~/.config/ai-tools/config.env"\n\
-echo "  2. Run tool:    claude"\n\
-echo ""\n\
-if [ -f ~/.config/ai-tools/config.env ]; then\n\
-    source ~/.config/ai-tools/config.env\n\
-    echo "✅ Configuration loaded"\n\
-else\n\
-    echo "⚠️  No config found. Copy config.env.template to config.env"\n\
-fi\n\
-' > /home/coder/list-agents.sh && chmod +x /home/coder/list-agents.sh
+**总计：8 个 AI 编程工具**
 
-ENV PATH="/home/coder:${PATH}"
+---
 
-# Set volumes for persistent data
-VOLUME ["/home/coder/projects", "/home/coder/.config", "/home/coder/.cache"]
+## 🚀 **快速开始**
 
-CMD ["/bin/bash", "-c", "/home/coder/list-agents.sh && /bin/bash"]
-```
+### 1️⃣ 克隆或创建项目
 
-**配套的 docker-compose.yml**:
-
-```yaml
-version: '3.8'
-
-services:
-  ai-coding-agents:
-    build: .
-    container_name: ai-coding-tools
-    stdin_open: true
-    tty: true
-    volumes:
-      # 项目文件映射
-      - ./projects:/home/coder/projects
-      
-      # 配置文件映射
-      - ./config:/home/coder/.config/ai-tools
-      
-      # 缓存目录映射(可选)
-      - ./cache:/home/coder/.cache
-      
-      # Git 配置映射(可选)
-      - ~/.gitconfig:/home/coder/.gitconfig:ro
-      
-      # SSH 密钥映射(可选,用于 git)
-      - ~/.ssh:/home/coder/.ssh:ro
-    
-    environment:
-      # 可以在这里直接设置环境变量,或使用 env_file
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-    
-    # 或使用环境变量文件
-    # env_file:
-    #   - ./config/.env
-    
-    working_dir: /home/coder/projects
-    
-    # 网络配置(如果需要访问本地服务)
-    # network_mode: host
-```
-
-**使用说明文档 (README.md)**:
-
-````markdown
-# AI Coding Agents Docker Setup
-
-## 📋 初始设置
-
-### 1. 创建必要的目录结构
 ```bash
-mkdir -p projects config cache
+# 创建项目目录
+mkdir ai-coding-agents && cd ai-coding-agents
+
+# 创建必需的目录和文件
+mkdir -p projects config
+
+# 复制本项目的所有文件到此目录
+# Dockerfile
+# docker-compose.yml
+# .dockerignore
+# config/config.env.example
 ````
 
-### 2. 创建配置文件
-
-复制模板并填写你的 API keys:
+### 2️⃣ 构建 Docker 镜像
 
 ```bash
-# 从容器中复制模板
-docker run --rm ai-coding-tools cat /home/coder/.config/ai-tools/config.env.template > config/config.env
+# 方式一：使用 docker-compose（推荐）
+docker-compose build
 
-# 编辑配置文件
-nano config/config.env
+# 方式二：直接使用 docker
+docker build . -t jdcloudiaas/turta:coder
 ```
 
-或直接创建 `config/config.env`:
+### 3️⃣ 配置 API 密钥
 
 ```bash
-# OpenAI Configuration
-export OPENAI_API_KEY="sk-..."
-export OPENAI_ORG_ID="org-..."
+# 复制配置模板
+cp config/config.env.example config/config.env
 
-# Anthropic Claude Configuration
-export ANTHROPIC_API_KEY="sk-ant-..."
-
-# Google Gemini Configuration
-export GEMINI_API_KEY="..."
-
-# GitHub Copilot Configuration
-export GITHUB_TOKEN="ghp_..."
-
-# Sourcegraph Cody Configuration
-export SRC_ACCESS_TOKEN="..."
-export SRC_ENDPOINT="https://sourcegraph.com"
+# 编辑配置文件，填入你的 API 密钥
+vim config/config.env
 ```
 
-## 🚀 启动容器
-
-### 使用 docker-compose (推荐)
+**config/config.env 格式：**
 
 ```bash
-docker-compose up -d
-docker-compose exec ai-coding-agents bash
+# OpenAI
+OPENAI_API_KEY="sk-proj-your-key"
+OPENAI_ORG_ID="org-your-org-id"
+
+# Anthropic
+ANTHROPIC_API_KEY="sk-ant-your-key"
+
+# Google
+GEMINI_API_KEY="your-gemini-key"
+
+# GitHub
+GITHUB_TOKEN="ghp_your-token"
+
+# Sourcegraph
+SRC_ACCESS_TOKEN="sgp_your-token"
 ```
 
-### 使用 docker run
+### 4️⃣ 启动容器
 
 ```bash
-docker build -t ai-coding-tools .
+# 使用 docker-compose
+docker-compose up -it
 
+# 或直接使用 docker
 docker run -it --rm \
   -v $(pwd)/projects:/home/coder/projects \
   -v $(pwd)/config:/home/coder/.config/ai-tools \
-  -v $(pwd)/cache:/home/coder/.cache \
-  -v ~/.gitconfig:/home/coder/.gitconfig:ro \
-  --env-file config/config.env \
-  ai-coding-tools
+  jdcloudiaas/turta:coder
 ```
 
-## 📁 目录映射说明
-
-| 主机目录           | 容器目录                           | 用途         |
-| -------------- | ------------------------------ | ---------- |
-| `./projects`   | `/home/coder/projects`         | 你的项目代码     |
-| `./config`     | `/home/coder/.config/ai-tools` | CLI 工具配置   |
-| `./cache`      | `/home/coder/.cache`           | 缓存数据       |
-| `~/.gitconfig` | `/home/coder/.gitconfig`       | Git 配置(只读) |
-| `~/.ssh`       | `/home/coder/.ssh`             | SSH 密钥(只读) |
-
-## 💡 使用示例
-
-进入容器后:
+### 5️⃣ 在容器内使用工具
 
 ```bash
-# 加载配置
-source ~/.config/ai-tools/config.env
+# 进入容器后，查看已安装工具
+~/list-agents.sh
 
-# 使用 Claude Code
-cd projects/my-project
-claude
+# 进入项目目录
+cd ~/projects
 
-# 使用 Aider
-aider --model gpt-4
-
-# 使用 GPT Engineer
-gpt-engineer projects/new-project
-
-# 使用 Continue
-cn chat
+# 使用各种 AI 工具
+claude                              # Claude Code
+aider --model gpt-4                 # Aider with GPT-4
+codex                               # OpenAI Codex
+gpt-engineer my-project             # Generate project
+interpreter                         # Open Interpreter
 ```
 
-## 🔒 安全建议
+---
 
-1. **不要提交配置文件**:
+## 📋 **详细使用指南**
 
-   ```bash
-   echo "config/config.env" >> .gitignore
-   echo ".env" >> .gitignore
-   ```
+### 使用 Aider（推荐入门）
 
-2. **使用环境变量文件** (docker-compose):
-   创建 `.env` 文件在项目根目录:
+```bash
+cd ~/projects
 
-   ```
-   OPENAI_API_KEY=sk-...
-   ANTHROPIC_API_KEY=sk-ant-...
-   ```
+# 创建新项目
+mkdir my-app && cd my-app
 
-3. **限制文件权限**:
+# 启动 Aider
+aider --model gpt-4
 
-   ```bash
-   chmod 600 config/config.env
-   ```
+# 在 Aider 中输入需求
+# /ask 询问问题
+# /code 生成代码
+# /test 生成测试
+```
 
-````
+### 使用 Claude Code
 
-**额外的 .gitignore**:
+```bash
+cd ~/projects
 
-```gitignore
-# 配置文件(包含敏感信息)
-config/config.env
-config/.env
-.env
+# 启动 Claude
+claude
 
-# 缓存目录
-cache/
+# 按照提示进行交互
+# 支持代码生成、分析、重构等
+```
 
-# 项目文件(根据需要调整)
-projects/*
-!projects/.gitkeep
-````
+### 使用 OpenAI Codex
 
-这个改进版本提供了:
+```bash
+cd ~/projects
 
-1. ✅ **配置文件管理**: 通过 volume 映射 `.config` 目录
-2. ✅ **项目目录映射**: 持久化你的代码
-3. ✅ **缓存目录**: 提升性能
-4. ✅ **Git 集成**: 映射 gitconfig 和 SSH 密钥
-5. ✅ **环境变量支持**: 多种方式配置 API keys
-6. ✅ **安全性**: 配置文件不进入镜像,使用 volume 挂载
-7. ✅ **易用性**: docker-compose 简化启动流程
+# 启动 Codex
+codex
+
+# 创建本地项目
+# Codex 会在本地运行代码分析
+```
+
+### 使用 Open Interpreter
+
+```bash
+cd ~/projects
+
+# 启动 Interpreter
+interpreter
+
+# 执行代码
+# >>> import pandas as pd
+# >>> df = pd.read_csv("data.csv")
+```
+
+### 使用 GPT Engineer
+
+```bash
+cd ~/projects
+
+# 生成完整项目
+gpt-engineer my-new-project
+# 按照提示填写项目需求
+```
+
+---
+
+## 🔧 **配置参考**
+
+### Docker Compose 环境变量
+
+```yaml
+environment:
+  - OPENAI_API_KEY=${OPENAI_API_KEY}        # OpenAI API 密钥
+  - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}  # Anthropic API 密钥
+  - GEMINI_API_KEY=${GEMINI_API_KEY}        # Google Gemini API 密钥
+  - GITHUB_TOKEN=${GITHUB_TOKEN}             # GitHub 令牌
+  - SRC_ACCESS_TOKEN=${SRC_ACCESS_TOKEN}    # Sourcegraph 令牌
+```
+
+### 持久化卷
+
+| 卷          | 用途   | 路径                             |
+| ---------- | ---- | ------------------------------ |
+| `projects` | 项目文件 | `/home/coder/projects`         |
+| `config`   | 配置文件 | `/home/coder/.config/ai-tools` |
+| `cache`    | 缓存数据 | `/home/coder/.cache`           |
+
+---
+
+## 🎯 **常见场景**
+
+### 场景 1：本地快速开发
+
+```bash
+# 启动容器
+docker-compose up -d
+
+# 在本地编辑文件
+vim projects/my-script.py
+
+# 在容器内测试
+docker-compose exec ai-coding-agents aider -f projects/my-script.py
+```
+
+### 场景 2：生成完整项目
+
+```bash
+docker-compose up -it
+
+# 在容器内
+cd ~/projects
+gpt-engineer my-project
+# 填写项目需求，自动生成完整项目
+```
+
+### 场景 3：代码分析和优化
+
+```bash
+docker-compose up -it
+
+# 在容器内
+cd ~/projects
+aider --message "优化这个脚本的性能" my-script.py
+```
+
+### 场景 4：多工具协作
+
+```bash
+# 终端 1：启动 Aider
+docker-compose exec ai-coding-agents aider
+
+# 终端 2：使用 Claude
+docker-compose exec ai-coding-agents claude
+
+# 终端 3：使用 Codex
+docker-compose exec ai-coding-agents codex
+```
+
+---
+
+## 🐛 **故障排除**
+
+### 问题 1：构建失败 - "heredoc not supported"
+
+**原因**：Docker 版本过旧或未启用 BuildKit
+
+**解决方案**：
+
+```bash
+# 临时启用 BuildKit
+DOCKER_BUILDKIT=1 docker build . -t jdcloudiaas/turta:coder
+
+# 或永久启用
+echo '{"features": {"buildkit": true}}' | sudo tee /etc/docker/daemon.json
+sudo systemctl restart docker
+```
+
+### 问题 2：API 密钥未被加载
+
+**原因**：配置文件不存在或路径错误
+
+**解决方案**：
+
+```bash
+# 检查配置文件
+ls -la config/config.env
+
+# 验证配置是否加载
+docker-compose exec ai-coding-agents env | grep OPENAI
+```
+
+### 问题 3：工具命令不存在
+
+**原因**：npm/Python 包安装失败
+
+**解决方案**：
+
+```bash
+# 检查已安装的 npm 包
+docker-compose exec ai-coding-agents npm list -g
+
+# 检查 Python 工具
+docker-compose exec ai-coding-agents pipx list
+```
+
+### 问题 4：磁盘空间不足
+
+**原因**：容器镜像和缓存占用空间大
+
+**解决方案**：
+
+```bash
+# 清理 Docker 缓存
+docker system prune -a
+
+# 检查卷大小
+docker volume ls
+docker volume inspect ai-coding-agents_ai-tools-cache
+```
+
+---
+
+## 📊 **系统需求**
+
+| 要求     | 最低配置              | 推荐配置    |
+| ------ | ----------------- | ------- |
+| CPU    | 2 核               | 4 核+    |
+| 内存     | 4 GB              | 8 GB+   |
+| 磁盘     | 10 GB             | 20 GB+  |
+| Docker | 24.0.0+           | 27.0.0+ |
+| OS     | Linux/Mac/Windows | Linux   |
+
+---
+
+## 📚 **相关链接**
+
+* [Anthropic Claude](https://github.com/anthropics/anthropic-sdk-python)
+* [Continue](https://github.com/continuedev/continue)
+* [Sourcegraph Cody](https://github.com/sourcegraph/cody)
+* [GitHub Copilot](https://github.com/github/copilot-cli)
+* [OpenAI Codex](https://github.com/openai/codex)
+* [GPT Engineer](https://github.com/AntonOsika/gpt-engineer)
+* [Aider](https://github.com/paul-gauthier/aider)
+* [Open Interpreter](https://github.com/KillianLucas/open-interpreter)
+
+---
+
+## 📝 **许可证**
+
+此项目使用各工具的开源许可证。具体详见各工具的官方仓库。
+
+---
+
+## 🤝 **贡献**
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📞 **支持**
+
+如遇问题，请：
+
+1. 查看 [故障排除](#-故障排除) 部分
+2. 检查各工具的官方文档
+3. 提交 Issue 或 Discussion
+
+---
+
+**最后更新**：2025-10-16
+**版本**：1.0.0

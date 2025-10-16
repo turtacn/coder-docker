@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ai-coding-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jdcloudiaas/turta:coder:latest
+    container_name: ai-coding-tools-prod
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - ./projects:/home/coder/projects
+      - ./config:/home/coder/.config/ai-tools
+      - ai-tools-cache:/home/coder/.cache
+      - ~/.gitconfig:/home/coder/.gitconfig:ro
+      - ~/.ssh:/home/coder/.ssh:ro
+
+    env_file:
+      - .env
+
+    environment:
+      - WORKSPACE=/home/coder/projects
+
+    working_dir: /home/coder/projects
+
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 12G
+        reservations:
+          cpus: '4'
+          memory: 8G
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - ai-network
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  ai-tools-cache:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=2G
